@@ -7,9 +7,7 @@
 - ` vim /etc/sysctl.conf `
 - `net.core.somaxconn=4096 `
 - `sysctl -p `
-
-`cat /proc/sys/net/core/somaxconn`查看
-
+- `cat /proc/sys/net/core/somaxconn`查看
 
 
 - ulimit -n 
@@ -19,11 +17,11 @@
   `[Errno 24] Too many open files',))`错误. 最后发现是打开文件数量有限制.
 
   ```
-vim /etc/security/limits.conf
-root hard nofile 1000000
-root soft nofile 1000000
-root soft core unlimited
-root soft stack 10240
+  vim /etc/security/limits.conf
+  root hard nofile 1000000
+  root soft nofile 1000000
+  root soft core unlimited
+  root soft stack 10240
   ```
 
   
