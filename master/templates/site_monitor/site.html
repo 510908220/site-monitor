@@ -1,0 +1,526 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block content %}
+<div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-default">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-1">
+                            <div class="btn-group">
+                                <a type="button" class="btn btn-danger" id="add-monitor-btn">新增</a>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3">
+                            <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-6 control-label">任务类型</label>
+                                <div class="col-sm-6">
+                                    <select class="form-control" id="search-task-type">
+                                        <option value='http'>http</option>
+                                        <option value='ping'>ping</option>
+                                        <option value='tcp'>tcp</option>
+                                    </select>
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                        <div class="col-xs-8">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">搜索监控项目</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="search-url" placeholder="输入url">
+                                    </div>
+
+                                    <div class=col-sm-1>
+                                     <button type="button" class="btn btn-default" id="search">搜索</button>
+                                    </div>
+
+                                
+                                </div>
+        
+                                </form>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <div class="modal fade" id="site-add-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span
+                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                                <div class="box-body host">
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">url</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control url">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-2 control-label">任务类型</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control task_type">
+                                                <option value='http'>http</option>
+                                                <option value='ping'>ping</option>
+                                                <option value='tcp'>tcp</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-2 control-label">频率</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control frequency">
+                                                <option value='2'>2分钟</option>
+                                                <option value='5'>5分钟</option>
+                                                <option value='10'>10分钟</option>
+                                                <option value='15'>15分钟</option>
+                                                <option value='20'>20分钟</option>
+                                                <option value='30'>30分钟</option>
+                                                <option value='60'>60分钟</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">超时</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control time_out" value="30">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">启用301/302跳转</label>
+                                        <div class="col-sm-10">
+                                            <input type="checkbox" class="redirect">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group ">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">监测点</label>
+                                        <div class="col-sm-10">
+                                            <div class="checkbox monitors">
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- /.box-footer -->
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="add-monitor-host">新增</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="site-modify-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span
+                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title">修改</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                                <div class="box-body host">
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">url</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control url">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-2 control-label">任务类型</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control task_type">
+                                                <option value='http'>http</option>
+                                                <option value='ping'>ping</option>
+                                                <option value='tcp'>tcp</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-2 control-label">频率</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control frequency">
+                                                <option value='2'>2分钟</option>
+                                                <option value='5'>5分钟</option>
+                                                <option value='10'>10分钟</option>
+                                                <option value='15'>15分钟</option>
+                                                <option value='20'>20分钟</option>
+                                                <option value='30'>30分钟</option>
+                                                <option value='60'>60分钟</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">超时</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control time_out" value="30">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">启用301/302跳转</label>
+                                        <div class="col-sm-10">
+                                            <input type="checkbox" class="redirect">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group ">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">监测点</label>
+                                        <div class="col-sm-10">
+                                            <div class="checkbox monitors">
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- /.box-footer -->
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary btn-modify" value="">修改</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{{ title }}列表</h3>
+
+                    <div class="box-tools">
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover sortable-theme-slick" data-sortable>
+                        <thead>
+                            <tr>
+                                <th>监控项目</th>
+                                <th>监控类型</th>
+                                <th>监控频率</th>
+                                <th>可用率</th>
+                                <th>平均响应时间</th>
+                                <th>更新时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="site-list">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+</div>
+{% endblock %} {% block userscript %}
+<script>
+    "use strict";
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        });
+        var MODAL_TITLE = "新增监控项目";
+        var API_SITE_URL = "/api/sites/";
+        var API_TASK_URL = "/api/tasks/";
+        var API_MONITOR_URL = "/api/monitors/";
+        var site_info = {};
+
+        {% verbatim %} //避免django的模板与jquery-tmpl混合
+        var monitor_markup = multiline(function() {
+            /*
+                             <tr>
+                             <td><a href='/site/${task_id}/'>${url}</a></td>
+                             <td>${task_type}</td>
+                             <td>${frequency}</td>
+                             <td>${availability}</td>
+                             <td>${average_response_time}</td>
+                             <td>${update_time}</td>
+                             <td>
+                             <button type="button" class="btn  btn-warning btn-xs modify-monitor-btn" value="${task_id}">修改</button>
+                             <button type="button" class="btn  btn-danger btn-xs del-monitor-btn" value="${task_id}">删除</button>
+                             </td>
+                             </tr>
+                             */
+        }); 
+        {% endverbatim %}
+        $.template("msiteTemplate", monitor_markup);
+
+        function update_sites(search_url, search_task_type) {
+            var url = API_SITE_URL;
+            if (search_url) {
+                url = API_SITE_URL + '?search_url=' + search_url;
+            }
+            if (search_task_type) {
+                if (url == API_SITE_URL) {
+                    url = API_SITE_URL + '?search_task_type=' + search_task_type;
+                } else {
+                    url = url + "&search_task_type=" + search_task_type;
+                }
+            }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    for (var item of data) {
+                        site_info[item.task_id] = item;
+                    }
+                    $("#site-list").empty();
+                    $.tmpl("msiteTemplate", data).appendTo("#site-list");
+                    $(".del-monitor-btn").each(function(index) {
+                        $(this).on("click", function() {
+                            var task_id = $(this).attr('value');
+                            var site = site_info[task_id];
+                            var msg = "是否要删除任务:" +site.task_type + "_" + site.url
+                            var r=confirm(msg);
+                            if (r==true)
+                            {
+                                del_site(task_id);
+                            }
+                        
+                        });
+                    });
+                    $(".modify-monitor-btn").each(function(index) {
+                        $(this).on("click", function() {
+                            var task_id = $(this).attr('value');
+                            var site = site_info[task_id];
+                            var monitor_list = site.monitors.split(",")
+
+                            $("#site-modify-modal .modal-title").html("修改监控项目");
+                            $("#site-modify-modal .btn-modify").attr('value',task_id);
+                            //更新
+                            $("#site-modify-modal .url").val(site.url)
+                            $("#site-modify-modal .task_type").val(site.task_type)
+                            $("#site-modify-modal .frequency").val(site.frequency)
+                            $("#site-modify-modal .time_out").val(site.time_out)
+                            $("#site-modify-modal .redirect").prop("checked", site.redirect)
+
+                            $.ajax({
+                                url: API_MONITOR_URL,
+                                type: 'GET',
+                                async: true,
+                                dataType: 'json',
+
+                                success: function(data) {
+                                    $("#site-modify-modal .monitors").html('')
+                                    var monitor_str = '';
+                                    for (let item of data) {
+                                        if (monitor_list.indexOf(item.id) > -1) {
+                                            monitor_str += "<label><input type='checkbox' value='{0}' checked>{1}</label>".format(item.id, item.name);
+                                        } else {
+                                            monitor_str += "<label><input type='checkbox' value='{0}'>{1}</label>".format(item.id, item.name);
+                                        }
+
+                                    }
+                                    $("#site-modify-modal .monitors").html(monitor_str);
+                                },
+                                error: function(xhr, textStatus) {
+                                    console.log("get monitors err:" + xhr.responseText);
+                                }
+                            })
+                            $("#site-modify-modal").modal('show');
+                        });
+                    });
+                },
+                error: function(xhr, textStatus) {
+                    console.log("update_sites error:" + xhr.responseText)
+                }
+            })
+        }
+
+
+        function add_monitor_host(url, task_type, frequency, time_out, redirect, monitors) {
+            $.ajax({
+                url: API_TASK_URL,
+                type: 'POST',
+                async: false,
+                dataType: 'json',
+                data: {
+                    url: url,
+                    task_type: task_type,
+                    frequency: frequency,
+                    time_out: time_out,
+                    submit_method: "0",
+                    retry: 1,
+                    header: "BROWSER",
+                    monitors: monitors,
+                    redirect: redirect
+                },
+                success: function(data) {
+
+                },
+                error: function(xhr) {
+                    console.log("add_monitor_host error:" + xhr.responseText);
+                }
+            })
+        }
+
+        /*
+         增加主机
+         */
+        $("#add-monitor-host").click(function() {
+
+            var url = $("#site-add-modal .url").val().trim();
+            var task_type = $("#site-add-modal .task_type").val().trim();
+            var frequency = $("#site-add-modal .frequency").val().trim();
+            var time_out = $("#site-add-modal .time_out").val().trim();
+            var redirect = $("#site-add-modal .redirect").prop("checked")
+
+
+            if (url === "") {
+                alert("url不可以为空");
+                return;
+            }
+            if (time_out === "") {
+                alert("超时不可以为空");
+                return;
+            }
+
+            var monitors = $('#site-add-modal .monitors input[type=checkbox]:checked').map(function() {
+                return this.value;
+            }).get().join(',')
+            if (!monitors) {
+                alert("请选择监测点");
+                return;
+            }
+
+            add_monitor_host(url, task_type, frequency, time_out, redirect, monitors);
+            $('#site-add-modal').modal('hide');
+            update_sites();
+        });
+
+        function del_site(id) {
+            $.ajax({
+                url: API_TASK_URL + id + "/",
+                type: 'DELETE',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    update_sites();
+                },
+                error: function(xhr) {
+                    console.log("del_site:" + xhr.responseText)
+                }
+            })
+        }
+
+        $("#site-modify-modal .btn-modify").click(function() {
+            var task_id = $(this).attr('value')
+            var url = $("#site-modify-modal .url").val().trim();
+            var task_type = $("#site-modify-modal .task_type").val().trim();
+            var frequency = $("#site-modify-modal .frequency").val().trim();
+            var time_out = $("#site-modify-modal .time_out").val().trim();
+            var redirect = $("#site-modify-modal .redirect").prop("checked")
+
+
+            if (url === "") {
+                alert("url不可以为空");
+                return;
+            }
+            if (time_out === "") {
+                alert("超时不可以为空");
+                return;
+            }
+
+            var monitors = $('#site-modify-modal .monitors input[type=checkbox]:checked').map(function() {
+                return this.value;
+            }).get().join(',')
+            if (!monitors) {
+                alert("请选择监测点");
+                return;
+            }
+
+            $.ajax({
+                url: API_TASK_URL + task_id + "/",
+                type: 'PATCH',
+                async: true,
+                dataType: 'json',
+                data: {
+                    url: url,
+                    task_type: task_type,
+                    frequency: frequency,
+                    time_out: time_out,
+                    monitors: monitors,
+                    redirect: redirect
+                },
+                success: function(data) {
+                    $("#site-modify-modal").modal('hide');
+                    update_sites();
+                },
+                error: function(xhr) {
+                    console.log("modify　error:" + xhr.responseText);
+                }
+            })
+
+        });
+
+
+   $("#search").click(function() {
+        var search_url = $("#search-url").val().trim();
+        var search_task_type = $("#search-task-type").val().trim();
+        update_sites(search_url, search_task_type);
+
+   });
+
+        $("#add-monitor-btn").click(function() {
+            $("#site-add-modal .url").val("")
+            $("#site-add-modal .time_out").val("30")
+            $("#site-add-modal .redirect").removeClass('checked');
+
+            $.ajax({
+                url: API_MONITOR_URL,
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+
+                success: function(data) {
+                    $("#site-add-modal .monitors").html('')
+                    var monitor_str = '';
+                    for (let item of data) {
+                        monitor_str += "<label><input type='checkbox' value='{0}'>{1}</label>".format(item.id, item.name);
+                    }
+                    $("#site-add-modal .monitors").html(monitor_str);
+                },
+                error: function(xhr, textStatus) {
+                    console.log("get monitors err:" + xhr.responseText);
+                }
+            })
+
+            $('#site-add-modal').modal('show');
+        })
+
+        $('#site-add-modal').on('shown.bs.modal', function(e) {
+            // do something...
+            $("#site-add-modal .modal-title").html(MODAL_TITLE);
+        })
+        update_sites();
+
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block content %}
+<div>
+    <iframe id="my_iframe" style="display:none;"></iframe>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-default">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="inputEmail3" class="col-sm-2 control-label">URL:</label>
+                                    <div class="col-sm-5">
+                                        <p class="form-control-static">{{url}}</p>
+                                    </div>
+                                    <label for="inputEmail3" class="col-sm-1 control-label">频率:</label>
+                                    <div class="col-sm-1">
+                                        <p class="form-control-static">{{frequency}}min</p>
+                                    </div>
+                                    <label for="inputEmail3" class="col-sm-1 control-label">类型:</label>
+                                    <div class="col-sm-1">
+                                        <p class="form-control-static">{{task_type}}</p>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="col-xs-12">
+                            <form class="form-horizontal">
+                                <label for="inputEmail3" class="col-sm-2 control-label">时间范围:</label>
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-clock-o"></i>
+                                            </div>
+                                            <input type="text" class="form-control pull-right" id="reservationtime">
+                                        </div>
+                                        <!-- /.input group -->
+                                    </div>
+                                </div>
+
+                                <!-- Date and time range -->
+                                 <div class=col-sm-2>
+                                    <button type="button" class="btn btn-danger" id="export">导出</button>
+                                 </div>
+                                <!-- /.form group -->
+                                <!-- Date and time range -->
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <div class="modal fade" id="monitor-result-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span
+                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="box-body table-responsive no-padding">
+                                <table class="table table-hover sortable-theme-slick" data-sortable>
+                                    <thead>
+                                        <tr>
+                                            <th>监测点</th>
+                                            <th>响应时间</th>
+                                            <th>状态码</th>
+                                            <th>可用性</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monitor-result-list">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{{ title }}列表</h3>
+
+                    <div class="box-tools">
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover sortable-theme-slick" data-sortable>
+                        <thead>
+                            <tr>
+                                <th>检查时间</th>
+                                <th>可用率</th>
+                                <th>平均响应时间</th>
+                                <th>可用</th>
+                                <th>不可用</th>
+                                <th>监测点</th>
+                            </tr>
+                        </thead>
+                        <tbody id="site-list">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+</div>
+{% endblock %} {% block userscript %}
+<script>
+    "use strict";
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        });
+        var MODAL_TITLE = "监测点";
+        var API_SITE_URL = "/api/sites/";
+        var monitor_result_dict = {};
+        var task_id = {{ task_id }};
+
+        {% verbatim %} //避免django的模板与jquery-tmpl混合
+        var monitor_markup = multiline(function() {
+            /*
+                             <tr>
+                             <td>${update_time}</td>
+                             <td>${availability}</td>
+                             <td>${average_response_time}</td>
+                             <td>${ok}</td>
+                             <td>${bad}</td>
+                             <td><button type="button" class="btn btn-primary btn-xs monitor-view-btn" value="${update_time}">检测点</button></td>
+                             </tr>
+                             */
+        });
+        var monitor_result_markup = multiline(function() {
+            /*
+                             <tr>
+                             <td>${monitor_name}</td>
+                             <td>${tim}ms</td>
+                             <td>${sta}</td>
+                             <td>${res}</td>
+                             </tr>
+                             */
+        }); 
+        {% endverbatim %}
+        $.template("msiteTemplate", monitor_markup);
+        $.template("monitorResultTemplate", monitor_result_markup);
+        $('#reservationtime').daterangepicker({
+                    "timePicker": true,
+             "opens": "center",
+             "timePicker24Hour": true,
+             locale: {format: 'YYYY-MM-DD HH:mm:ss'}
+            }, function(start, end, label) {
+                  console.log('New date range selected: ' + start.format('YYYY-MM-DD HH:mm:ss') + ' to ' + end.format('YYYY-MM-DD HH:mm:ss') + ' (predefined range: ' + label + ')');
+                update_sites(start.format('YYYY-MM-DD HH:mm:ss'),  end.format('YYYY-MM-DD HH:mm:ss'));
+            
+                  });
+
+        function update_sites(begin_date, end_date) {
+            var url = API_SITE_URL + task_id + '/';
+            if (begin_date && end_date) {
+                url = url + '?begin_date=' + begin_date +'&end_date=' + end_date;
+            }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    for (var item of data) {
+                        monitor_result_dict[item.update_time] = item.monitor_result_list;
+                    }
+                    $("#site-list").empty();
+                    $.tmpl("msiteTemplate", data).appendTo("#site-list");
+                    $(".monitor-view-btn").click(function() {
+                        var update_time = $(this).val().trim();
+
+                        $("#monitor-result-list").empty();
+                        $.tmpl("monitorResultTemplate", monitor_result_dict[update_time]).appendTo("#monitor-result-list");
+                        $('#monitor-result-modal').modal('show');
+                    });
+
+                },
+                error: function(xhr, textStatus) {
+                    console.log("update_sites error:" + xhr.responseText)
+                }
+            })
+        }
+
+
+
+        $("#export").click(function() {
+            var range = $("#reservationtime").val().trim();
+            var dates = range.split(' - ')
+            var begin_date = dates[0]
+            var end_date = dates[1]
+
+            var url = API_SITE_URL + task_id + '/';
+            if (begin_date && end_date) {
+                url = url + '?begin_date=' + begin_date +'&end_date=' + end_date + '&export=1'
+            }
+
+            console.log('download url is:', url)
+             document.getElementById('my_iframe').src = url;
+        });
+
+        $('#monitor-result-modal').on('shown.bs.modal', function(e) {
+            // do something...
+            $("#monitor-result-modal .modal-title").html(MODAL_TITLE);
+        })
+        update_sites();
+
+
+    });
+</script>
+{% endblock %}

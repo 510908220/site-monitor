@@ -1,0 +1,117 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block content %}
+<div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{{ title }}列表</h3>
+
+                    <div class="box-tools">
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover sortable-theme-slick" data-sortable>
+                        <thead>
+                            <tr>
+                                <th>频率</th>
+                                <th>监测点ID</th>
+                                <th>状态</th>
+                                <th>更新时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monitor-list">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+</div>
+{% endblock %} {% block userscript %}
+<script>
+    "use strict";
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        });
+        var API_STATUS_URL = "/api/status/";
+        // "2/2000/空闲/2018-05-28 11:33:42"
+        {% verbatim %} //避免django的模板与jquery-tmpl混合
+        var monitor_markup = multiline(function() {
+            /*
+                             <tr>
+                             <td>${frequency}</td>
+                             <td>${monitor_id}</td>
+                             <td>${status}</td>
+                             <td>${updated}</td>
+                              <td>
+                             <button type="button" class="btn  btn-danger btn-xs reset-btn" value="${frequency}">重置</button>
+                             </td>
+                             </tr>
+                             */
+        }); 
+        {% endverbatim %}
+        $.template("msiteTemplate", monitor_markup);
+        function update_monitors() {
+            $.ajax({
+                url: API_STATUS_URL,
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    $("#monitor-list").empty();
+                    var new_datas = [];
+                    for (var line of data) {
+                        var items = line.split("/");
+                        new_datas.push({
+                           frequency: items[0],
+                            monitor_id: items[1],
+                            status: items[2],
+                            updated: items[3]
+                        })
+                    }
+                    $.tmpl("msiteTemplate", new_datas).appendTo("#monitor-list");
+                    $(".reset-btn").each(function(index) {
+                        $(this).on("click", function() {
+                            reset_monitor($(this).attr('value'));
+                        });
+                    });
+                },
+                error: function(xhr, textStatus) {
+                    console.log("update_monitors error:" + xhr.responseText)
+                }
+            })
+        }
+
+
+        function reset_monitor(frequency) {
+            $.ajax({
+                url: API_STATUS_URL + frequency + "/",
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    update_monitors();
+                },
+                error: function(xhr) {
+                    console.log("reset_monitor error:" + xhr.responseText);
+                }
+            })
+        }
+
+       
+
+
+        update_monitors();
+
+
+    });
+</script>
+{% endblock %}

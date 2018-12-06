@@ -1,0 +1,26 @@
+[[source]]
+
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+django = "==2.0.7"
+djangorestframework = "==3.8.2"
+django-filter = "==2.0.0"
+django-cors-headers = "==2.3.0"
+uwsgi = "*"
+better-exceptions = "*"
+mysqlclient = "*"
+fire = "*"
+"delegator.py"= "*"
+requests = "==2.11.1"
+pylint = "==1.9.2"
+pendulum = "*"
+pyppeteer = "*"
+[dev-packages]
+
+[requires]
+python_version = "3.6"

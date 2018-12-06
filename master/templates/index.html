@@ -1,0 +1,21 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Django & VueJS</title>
+
+    <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.2/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <div id="app">
+      Helloworld
+    </div>
+</body>
+
+<script src="{% static 'js/app.js' %}"></script>
+
+</html>

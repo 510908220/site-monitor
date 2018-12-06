@@ -1,0 +1,219 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block content %}
+<div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-default">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-9">
+                            <div class="btn-group">
+                                <a type="button" class="btn btn-danger" id="add-monitor-btn">新增</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <div class="modal fade" id="monitor-host-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span
+                                        aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                                <div class="box-body host">
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">ID</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="id">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">监测点名</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-2 control-label">IP</label>
+                                        <div class="col-sm-10">
+                                             <input type="text" class="form-control" id="ip">
+                                        </div>
+                                    </div>
+    
+                                </div>
+
+                                <!-- /.box-footer -->
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="add-monitor-host">新增</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+     
+        </div>
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{{ title }}列表</h3>
+
+                    <div class="box-tools">
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover sortable-theme-slick" data-sortable>
+                        <thead>
+                            <tr>
+                                <th>监测点ID</th>
+                                <th>监测点名</th>
+                                <th>IP</th>
+                                <th>创建时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monitor-list">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+</div>
+{% endblock %} {% block userscript %}
+<script>
+    "use strict";
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        });
+        var MODAL_TITLE = "新增监测点";
+        var API_MONITOR_URL = "/api/monitors/";
+
+        {% verbatim %} //避免django的模板与jquery-tmpl混合
+        var monitor_markup = multiline(function() {
+            /*
+                             <tr>
+                             <td>${id}</td>
+                             <td>${name}</td>
+                             <td>${ip}</td>
+                             <td>${created}</td>
+                             </tr>
+                             */
+        }); 
+        {% endverbatim %}
+        $.template("msiteTemplate", monitor_markup);
+        function update_monitors() {
+            $.ajax({
+                url: API_MONITOR_URL,
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    $("#monitor-list").empty();
+                    $.tmpl("msiteTemplate", data).appendTo("#monitor-list");
+                    $(".del-monitor-btn").each(function(index) {
+                        $(this).on("click", function() {
+                            del_monitor($(this).attr('value'));
+                        });
+                    });
+                },
+                error: function(xhr, textStatus) {
+                    console.log("update_monitors error:" + xhr.responseText)
+                }
+            })
+        }
+
+
+        function add_monitor(id, name, ip) {
+            $.ajax({
+                url: API_MONITOR_URL,
+                type: 'POST',
+                async: false,
+                dataType: 'json',
+                data: {
+                    id: id,
+                    name: name,
+                    ip: ip
+                },
+                success: function(data) {
+
+                },
+                error: function(xhr) {
+                    console.log("add_monitor error:" + xhr.responseText);
+                }
+            })
+        }
+
+        /*
+         增加主机
+         */
+        $("#add-monitor-host").click(function() {
+            var id = $("#id").val().trim();
+            if (id === "") {
+                alert("监测点id不可为空");
+                return;
+            }
+
+            var name = $("#name").val().trim();
+            if (name === "") {
+                alert("监测点名不可为空");
+                return;
+            }
+           
+            var ip = $("#ip").val().trim();
+            if (ip === "") {
+                alert("监测点IP不可为空");
+                return;
+            }
+            
+            add_monitor(id, name, ip);
+            $('#monitor-host-modal').modal('hide');
+            update_monitors();
+        });
+
+        function del_monitor(id) {
+            alert('暂时关闭删除入口,删除可以联系管理员~')
+           /* $.ajax({
+                url: API_MONITOR_URL + id + "/",
+                type: 'DELETE',
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+
+                    update_monitors();
+                },
+                error: function(xhr) {
+                    console.log("del_process　error:" + xhr.responseText)
+                }
+            })*/
+        }
+
+
+        $("#add-monitor-btn").click(function() {
+           $("#id").val("");
+           $("#name").val("");
+           $("#ip").val("");
+           $('#monitor-host-modal').modal('show');
+        })
+
+        $('#monitor-host-modal').on('shown.bs.modal', function(e) {
+            // do something...
+            $("#monitor-host-modal .modal-title").html(MODAL_TITLE);
+        })
+        update_monitors();
+
+
+    });
+</script>
+{% endblock %}
